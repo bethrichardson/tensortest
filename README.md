@@ -21,3 +21,11 @@ This project uses TensorFlow to predict web API status codes based on API input.
     ```
     python src/service/resources.py
     ```
+1. Install mongo
+    ```
+    brew install mongo
+    ```
+1. Get a mongo VM and run it
+1. Connect to the VM and create database
+```
+use tensortest

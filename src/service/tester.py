@@ -11,26 +11,21 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-"""An Example of a DNNClassifier for the Iris dataset."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import argparse
 import tensorflow as tf
 
-from src.service import api_data
+import api_data
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-parser.add_argument('--train_steps', default=1000, type=int,
-                    help='number of training steps')
+BATCH_SIZE = 100
+TRAIN_STEPS = 1000
 
-def main(argv):
-    args = parser.parse_args(argv[1:])
 
+def run_training(training_data):
     # Fetch the data
-    (train_x, train_y), (test_x, test_y) = api_data.load_data()
+    (train_x, train_y), (test_x, test_y) = api_data.load_data(training_data)
 
     # Feature columns describe how to use the input.
     my_feature_columns = []
@@ -45,32 +40,48 @@ def main(argv):
         # The model must choose between 3 classes.
         n_classes=3)
 
+    print(my_feature_columns)
+
     # Train the Model.
     classifier.train(
         input_fn=lambda: api_data.train_input_fn(train_x, train_y,
-                                                 args.batch_size),
-        steps=args.train_steps)
+                                                 BATCH_SIZE),
+        steps=TRAIN_STEPS)
 
     # Evaluate the model.
     eval_result = classifier.evaluate(
         input_fn=lambda: api_data.eval_input_fn(test_x, test_y,
-                                                args.batch_size))
+                                                BATCH_SIZE))
 
     print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+    print(classifier.config)
+    feature_spec = tf.feature_column.make_parse_example_spec(my_feature_columns)
+    classifier.export_savedmodel('./saved_models', tf.estimator.export.build_parsing_serving_input_receiver_fn(
+        feature_spec))
+    print("COMPLETED SAVE")
+    # features=features,
+    #       labels=labels,
+    #       mode=mode,
+    #       head=head,
+    #       hidden_units=hidden_units,
+    #       feature_columns=tuple(feature_columns or []),
+    #       optimizer=optimizer,
+    #       activation_fn=activation_fn,
+    #       dropout=dropout,
+    #       input_layer_partitioner=input_layer_partitioner,
+    #       config=config
+    return classifier
 
+
+def run_test(test_value, expected, training_data):
+    classifier = run_training(training_data)
     # Generate predictions from the model
-    expected = ['200', '400', '500']
-    predict_x = {
-        'Name': [5.1, 5.9, 6.9],
-        'EnvironmentId': [3.3, 3.0, 3.1],
-        'FormType': [1.7, 4.2, 5.4],
-        'ConstituentCode': [0.5, 1.5, 2.1],
-    }
+    predict_x = test_value
 
     predictions = classifier.predict(
         input_fn=lambda: api_data.eval_input_fn(predict_x,
                                                 labels=None,
-                                                batch_size=args.batch_size))
+                                                batch_size=BATCH_SIZE))
 
     for pred_dict, expec in zip(predictions, expected):
         template = ('\nPrediction is "{}" ({:.1f}%), expected "{}"')
@@ -81,7 +92,4 @@ def main(argv):
         print(template.format(api_data.SPECIES[class_id],
                               100 * probability, expec))
 
-
-if __name__ == '__main__':
-    tf.logging.set_verbosity(tf.logging.INFO)
-    tf.app.run(main)
+        return api_data.SPECIES[class_id], 100 * probability, expec

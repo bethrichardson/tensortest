@@ -4,14 +4,15 @@ import tensorflow as tf
 TRAIN_URL = "api_training.csv"
 TEST_URL = "api_test.csv"
 
-CSV_COLUMN_NAMES = ['Name', 'EnvironmentId',
-                    'FormType', 'ConstituentCode', 'StatusCode']
+CSV_COLUMN_NAMES = ['Name', 'Environment',
+                    'Type', 'Code', 'Status']
 SPECIES = ['200', '400', '500']
 
-def load_data(y_name='StatusCode'):
-    """Returns the iris dataset as (train_x, train_y), (test_x, test_y)."""
 
-    train = pd.read_csv(TRAIN_URL, names=CSV_COLUMN_NAMES, header=0)
+def load_data(training_data, y_name='Status'):
+    """Returns the loaded dataset as (train_x, train_y), (test_x, test_y)."""
+
+    train = training_data
     train_x, train_y = train, train.pop(y_name)
 
     test = pd.read_csv(TEST_URL, names=CSV_COLUMN_NAMES, header=0)

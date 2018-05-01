@@ -5,8 +5,11 @@ from bson.objectid import ObjectId
 import simplejson as json
 from werkzeug import Response
 import pandas as pd
+import numpy as np
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['MONGO2_DBNAME'] = 'tensortest'
 app.config['MONGO2_HOST'] = 'local.docker'
@@ -17,7 +20,7 @@ mongo = PyMongo(app, config_prefix='MONGO2')
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Hello, World!"
+    return "Test time!"
 
 class MongoJsonEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -32,6 +35,7 @@ def get_all_docs():
     cursor = mongo.db.api.find()
     return Response(json.dumps(list(cursor), cls=MongoJsonEncoder), mimetype='application/json')
 
+# TODO: use api to query for correct data
 def get_training_data():
     cursor = mongo.db.api.find()
     df = pd.DataFrame(list(cursor))
@@ -72,7 +76,8 @@ def run_rest_test():
         'Type': [int(request.args.get('type'))],
         'Code': [int(request.args.get('code'))]
     }
-    print("Received Name: " + request.args.get('name'))
+    name = request.args.get('name')
+    print("Received API: " + name)
     actual_status = [request.args.get('status')]
     prediction, probability, expectation = run_test(test_value, actual_status, get_training_data())
 

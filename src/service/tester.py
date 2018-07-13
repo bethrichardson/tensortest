@@ -55,21 +55,9 @@ def run_training(training_data):
 
     print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
     print(classifier.config)
-    feature_spec = tf.feature_column.make_parse_example_spec(my_feature_columns)
-    classifier.export_savedmodel('./saved_models', tf.estimator.export.build_parsing_serving_input_receiver_fn(
-        feature_spec))
-    print("COMPLETED SAVE")
-    # features=features,
-    #       labels=labels,
-    #       mode=mode,
-    #       head=head,
-    #       hidden_units=hidden_units,
-    #       feature_columns=tuple(feature_columns or []),
-    #       optimizer=optimizer,
-    #       activation_fn=activation_fn,
-    #       dropout=dropout,
-    #       input_layer_partitioner=input_layer_partitioner,
-    #       config=config
+    # feature_spec = tf.feature_column.make_parse_example_spec(my_feature_columns)
+    # classifier.export_savedmodel('./saved_models', tf.estimator.export.build_parsing_serving_input_receiver_fn(
+    #     feature_spec))
     return classifier
 
 

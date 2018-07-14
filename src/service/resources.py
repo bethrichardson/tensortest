@@ -16,7 +16,11 @@ app.config['MONGO2_DBNAME'] = 'tensortest'
 app.config['MONGO2_HOST'] = 'local.docker'
 
 mongo = PyMongo(app, config_prefix='MONGO2')
-
+NUM_TRAINING_RUNS = 350
+MIN_TEST_INPUT_RANGE = 0
+MAX_TEST_INPUT_RANGE = 5
+MIN_ACCEPTABLE_ACCURACY = 95
+NUM_TRAINING_RUN_INCREMENT = 50
 
 @app.route('/')
 @app.route('/index')
@@ -78,10 +82,10 @@ def make_test():
 
 def run_training_set(size):
     for i in range(0, size):
-        name = random.randint(0, 5)
-        env = random.randint(0, 5)
-        typ = random.randint(0, 5)
-        code = random.randint(0, 5)
+        name = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
+        env = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
+        typ = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
+        code = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
         status = test_application.run(name, env, typ, code)
 
         train_data = {
@@ -95,11 +99,11 @@ def run_training_set(size):
 
 @app.route('/train/random')
 def train_exhaustively():
-    run_training_set(350)
-    name = random.randint(0, 5)
-    env = random.randint(0, 5)
-    typ = random.randint(0, 5)
-    code = random.randint(0, 5)
+    run_training_set(NUM_TRAINING_RUNS)
+    name = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
+    env = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
+    typ = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
+    code = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
 
     test_value = {
         'Name': [name],
@@ -111,9 +115,9 @@ def train_exhaustively():
     prediction, probability, accuracy = run_test(test_value, get_training_data())
     print("Accuracy is:" + str(accuracy))
     num_tests = 1
-    while accuracy < 95:
+    while accuracy < MIN_ACCEPTABLE_ACCURACY:
         print("Adding additional training set. Accuracy is too low: " + str(accuracy))
-        run_training_set(50)
+        run_training_set(NUM_TRAINING_RUN_INCREMENT)
         prediction, probability, accuracy = run_test(test_value, get_training_data())
         num_tests += 1
 

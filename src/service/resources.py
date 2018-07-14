@@ -7,6 +7,7 @@ from werkzeug import Response
 import pandas as pd
 from flask_cors import CORS
 import test_application
+import random
 
 app = Flask(__name__)
 CORS(app)
@@ -75,6 +76,32 @@ def make_test():
     return Response(json.dumps(response, cls=MongoJsonEncoder), mimetype='application/json')
 
 
+@app.route('/train/random')
+def train_exhaustively():
+    for i in range(0, 250):
+        print "Training for " + str(i)
+        name = random.randint(0, 5)
+        env = random.randint(0, 5)
+        typ = random.randint(0, 5)
+        code = random.randint(0, 5)
+        status = test_application.run(name, env, typ, code)
+
+        train_data = {
+            "Status": status,
+            "Name": name,
+            "Environment": env,
+            "Type": typ,
+            "Code": code
+        }
+        mongo.db.api.insert_one(train_data)
+        print train_data
+
+    response = {
+        "acknowledged": True
+    }
+    return Response(json.dumps(response, cls=MongoJsonEncoder), mimetype='application/json')
+
+
 # TODO: Handle non float values
 @app.route('/test/run')
 def run_rest_test():
@@ -86,11 +113,12 @@ def run_rest_test():
     }
     name = request.args.get('name')
     print("Received API: " + name)
-    prediction, probability = run_test(test_value, get_training_data())
+    prediction, probability, accuracy = run_test(test_value, get_training_data())
 
     return jsonify({
         "prediction": prediction,
-        "probability": probability
+        "probability": probability,
+        "accuracy": accuracy
     })
 
 

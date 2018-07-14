@@ -53,17 +53,19 @@ def run_training(training_data):
         input_fn=lambda: api_data.eval_input_fn(test_x, test_y,
                                                 BATCH_SIZE))
 
-    print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+    print(eval_result)
+    test_accuracy = eval_result['accuracy'] * 100
+    print("Test set accuracy: " + str(test_accuracy))
     print(classifier.config)
     # feature_spec = tf.feature_column.make_parse_example_spec(my_feature_columns)
     # classifier.export_savedmodel('./saved_models', tf.estimator.export.build_parsing_serving_input_receiver_fn(
     #     feature_spec))
-    return classifier
+    return classifier, test_accuracy
 
 
 def run_test(test_value, training_data):
     print("run test")
-    classifier = run_training(training_data)
+    classifier, test_accuracy = run_training(training_data)
     # Generate predictions from the model
     predict_x = test_value
 
@@ -81,4 +83,4 @@ def run_test(test_value, training_data):
         print(template.format(api_data.SPECIES[class_id],
                               100 * probability))
 
-        return api_data.SPECIES[class_id], 100 * probability
+        return api_data.SPECIES[class_id], 100 * probability, test_accuracy

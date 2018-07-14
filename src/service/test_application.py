@@ -8,7 +8,7 @@ def run(name, env, typ, code):
     print "Running test application!"
     total = name + env + typ + code
     path = 0
-    if total > 2:
+    if total > 4:
         path += 1
         if env >= 0:
             path += 1
@@ -27,8 +27,6 @@ def run(name, env, typ, code):
         if typ == 1:
             path += 1
             return calculate_input_status(path)
-    if total > 3:
-        path += 1
         if env >= 1:
             path += 1
             if typ == 0:
@@ -47,7 +45,7 @@ def run(name, env, typ, code):
             path += 1
             return calculate_input_status(path)
 
-    if total > 4:
+    if total > 7:
         path += 1
         if env > 1:
             path += 1
@@ -66,7 +64,7 @@ def run(name, env, typ, code):
             path += 1
             return calculate_input_status(path)
 
-    if total > 5:
+    if total > 20:
         path += 1
         return calculate_input_status(path)
     return calculate_input_status(path)

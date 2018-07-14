@@ -1,11 +1,5 @@
-# "Name": int(request.args.get('name')),
-#         "Environment": int(request.args.get('environment')),
-#         "Type": int(request.args.get('type')),
-#         "Code": int(request.args.get('code'))
-
 
 def run(name, env, typ, code):
-    print "Running test application!"
     total = name + env + typ + code
     path = 0
     if total > 4:
@@ -71,7 +65,6 @@ def run(name, env, typ, code):
 
 
 def calculate_input_status(path):
-    print "PATH IS:" + str(path)
     if path < 3:
         return 0
     if path < 10:

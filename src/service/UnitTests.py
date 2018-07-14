@@ -27,43 +27,20 @@ def get_high_value_input():
 class Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        requests.get(random_training_endpoint)
-        # name, environment, type, code = get_high_value_input()
-        # data = str.format("?name={0}&environment={1}&type={2}&code={3}",
-        #                   name,
-        #                   environment,
-        #                   type,
-        #                   code)
-        # for i in range(1, 5):
-        #     requests.get(training_endpoint + data)
-        #
-        # name, environment, type, code = get_mid_value_input()
-        # data = str.format("?name={0}&environment={1}&type={2}&code={3}",
-        #                   name,
-        #                   environment,
-        #                   type,
-        #                   code)
-        # for i in range(1, 5):
-        #     requests.get(training_endpoint + data)
-        #
-        # name, environment, type, code = get_low_value_input()
-        # data = str.format("?name={0}&environment={1}&type={2}&code={3}",
-        #                   name,
-        #                   environment,
-        #                   type,
-        #                   code)
-        # for i in range(1, 5):
-        #     requests.get(training_endpoint + data)
+        response = requests.get(random_training_endpoint)
+        data = json.dumps(response.json())
+        result = json.loads(data)
+        print result
 
-    def test_run_training(self):
-        name, environment, type, code = get_high_value_input()
-        data = str.format("?name={0}&environment={1}&type={2}&code={3}",
-                          name,
-                          environment,
-                          type,
-                          code)
-        response = requests.get(training_endpoint + data)
-        self.assertEquals(response.status_code, 200)
+    # def test_run_training(self):
+    #     name, environment, type, code = get_high_value_input()
+    #     data = str.format("?name={0}&environment={1}&type={2}&code={3}",
+    #                       name,
+    #                       environment,
+    #                       type,
+    #                       code)
+    #     response = requests.get(training_endpoint + data)
+    #     self.assertEquals(response.status_code, 200)
 
     def test_can_get_results(self):
         response = requests.get(test_endpoint)

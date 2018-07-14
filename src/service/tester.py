@@ -64,7 +64,8 @@ def run_training(training_data):
 
 
 def run_test(test_value, training_data):
-    print("run test")
+    print("run test: ")
+    print(str(test_value))
     classifier, test_accuracy = run_training(training_data)
     # Generate predictions from the model
     predict_x = test_value

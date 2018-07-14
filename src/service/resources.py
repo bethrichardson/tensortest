@@ -43,9 +43,9 @@ def get_training_data():
     cursor = mongo.db.api.find()
     df = pd.DataFrame(list(cursor))
     df.pop('_id')
-    print("printing frame")
-    print(df)
-    print ("done frame")
+    # print("printing frame")
+    # print(df)
+    # print ("done frame")
     return df
 
 
@@ -76,10 +76,8 @@ def make_test():
     return Response(json.dumps(response, cls=MongoJsonEncoder), mimetype='application/json')
 
 
-@app.route('/train/random')
-def train_exhaustively():
-    for i in range(0, 250):
-        print "Training for " + str(i)
+def run_training_set(size):
+    for i in range(0, size):
         name = random.randint(0, 5)
         env = random.randint(0, 5)
         typ = random.randint(0, 5)
@@ -94,10 +92,35 @@ def train_exhaustively():
             "Code": code
         }
         mongo.db.api.insert_one(train_data)
-        print train_data
+
+@app.route('/train/random')
+def train_exhaustively():
+    run_training_set(350)
+    name = random.randint(0, 5)
+    env = random.randint(0, 5)
+    typ = random.randint(0, 5)
+    code = random.randint(0, 5)
+
+    test_value = {
+        'Name': [name],
+        'Environment': [env],
+        'Type': [typ],
+        'Code': [code]
+    }
+
+    prediction, probability, accuracy = run_test(test_value, get_training_data())
+    print("Accuracy is:" + str(accuracy))
+    num_tests = 1
+    while accuracy < 95:
+        print("Adding additional training set. Accuracy is too low: " + str(accuracy))
+        run_training_set(50)
+        prediction, probability, accuracy = run_test(test_value, get_training_data())
+        num_tests += 1
 
     response = {
-        "acknowledged": True
+        "acknowledged": True,
+        "num_test_runs": num_tests,
+        "accuracy": accuracy
     }
     return Response(json.dumps(response, cls=MongoJsonEncoder), mimetype='application/json')
 
@@ -111,8 +134,6 @@ def run_rest_test():
         'Type': [int(request.args.get('type'))],
         'Code': [int(request.args.get('code'))]
     }
-    name = request.args.get('name')
-    print("Received API: " + name)
     prediction, probability, accuracy = run_test(test_value, get_training_data())
 
     return jsonify({

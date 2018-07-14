@@ -1,7 +1,6 @@
 import pandas as pd
 import tensorflow as tf
 
-TRAIN_URL = "api_training.csv"
 TEST_URL = "api_test.csv"
 
 CSV_COLUMN_NAMES = ['Code', 'Environment',

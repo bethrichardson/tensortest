@@ -22,6 +22,7 @@ MAX_TEST_INPUT_RANGE = 5
 MIN_ACCEPTABLE_ACCURACY = 95
 NUM_TRAINING_RUN_INCREMENT = 50
 
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -35,25 +36,21 @@ class MongoJsonEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-# '5abd1f8b468470aa1794cde2'
 @app.route('/test')
 def get_all_docs():
     cursor = mongo.db.api.find()
     return Response(json.dumps(list(cursor), cls=MongoJsonEncoder), mimetype='application/json')
 
 
-# TODO: use api to query for correct data
 def get_training_data():
     cursor = mongo.db.api.find()
     df = pd.DataFrame(list(cursor))
     df.pop('_id')
     # print("printing frame")
     # print(df)
-    # print ("done frame")
     return df
 
 
-# TODO: Handle non float values
 @app.route('/train')
 def make_test():
     name = int(request.args.get('name'))
@@ -129,7 +126,6 @@ def train_exhaustively():
     return Response(json.dumps(response, cls=MongoJsonEncoder), mimetype='application/json')
 
 
-# TODO: Handle non float values
 @app.route('/test/run')
 def run_rest_test():
     test_value = {

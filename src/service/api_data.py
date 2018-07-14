@@ -6,7 +6,7 @@ TEST_URL = "api_test.csv"
 
 CSV_COLUMN_NAMES = ['Name', 'Environment',
                     'Type', 'Code', 'Status']
-SPECIES = ['200', '400', '500']
+SPECIES = ['low value', 'mid value', 'high value']
 
 
 def load_data(training_data, y_name='Status'):

@@ -8,14 +8,18 @@ training_endpoint = base_url + 'train'
 run_test_endpoint = base_url + 'test/run'
 delete_endpoint = base_url + 'test/delete'
 
+
 def get_low_value_input():
     return 0, 1, 0, 1
+
 
 def get_mid_value_input():
     return 5, 1, 0, 0
 
+
 def get_high_value_input():
     return 5, 1, 0, 1
+
 
 class Test(unittest.TestCase):
     @classmethod
@@ -79,7 +83,7 @@ class Test(unittest.TestCase):
 
         data = json.dumps(response.json())
         result = json.loads(data)
-        self.assertEquals(result['prediction'], '500')
+        self.assertEquals(result['prediction'], 'high value')
         self.assertGreater(result['probability'], 0)
 
     def test_can_identify_mid_value_inputs(self):
@@ -95,7 +99,7 @@ class Test(unittest.TestCase):
 
         data = json.dumps(response.json())
         result = json.loads(data)
-        self.assertEquals(result['prediction'], '400')
+        self.assertEquals(result['prediction'], 'mid value')
         self.assertGreater(result['probability'], 0)
 
     def test_can_identify_low_value_inputs(self):
@@ -111,7 +115,7 @@ class Test(unittest.TestCase):
 
         data = json.dumps(response.json())
         result = json.loads(data)
-        self.assertEquals(result['prediction'], '200')
+        self.assertEquals(result['prediction'], 'low value')
         self.assertGreater(result['probability'], 0)
 
     @classmethod

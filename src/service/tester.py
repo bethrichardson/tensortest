@@ -61,7 +61,8 @@ def run_training(training_data):
     return classifier
 
 
-def run_test(test_value, expected, training_data):
+def run_test(test_value, training_data):
+    print("run test")
     classifier = run_training(training_data)
     # Generate predictions from the model
     predict_x = test_value
@@ -71,13 +72,13 @@ def run_test(test_value, expected, training_data):
                                                 labels=None,
                                                 batch_size=BATCH_SIZE))
 
-    for pred_dict, expec in zip(predictions, expected):
-        template = ('\nPrediction is "{}" ({:.1f}%), expected "{}"')
+    for pred_dict, expec in zip(predictions, [0]):
+        template = ('\nPrediction is "{}" ({:.1f}%)')
 
         class_id = pred_dict['class_ids'][0]
         probability = pred_dict['probabilities'][class_id]
 
         print(template.format(api_data.SPECIES[class_id],
-                              100 * probability, expec))
+                              100 * probability))
 
-        return api_data.SPECIES[class_id], 100 * probability, expec
+        return api_data.SPECIES[class_id], 100 * probability

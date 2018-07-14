@@ -6,6 +6,7 @@ import simplejson as json
 from werkzeug import Response
 import pandas as pd
 from flask_cors import CORS
+import test_application
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,7 @@ mongo = PyMongo(app, config_prefix='MONGO2')
 def index():
     return "Test time!"
 
+
 class MongoJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ObjectId):
@@ -28,11 +30,12 @@ class MongoJsonEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-## '5abd1f8b468470aa1794cde2'
+# '5abd1f8b468470aa1794cde2'
 @app.route('/test')
 def get_all_docs():
     cursor = mongo.db.api.find()
     return Response(json.dumps(list(cursor), cls=MongoJsonEncoder), mimetype='application/json')
+
 
 # TODO: use api to query for correct data
 def get_training_data():
@@ -48,15 +51,21 @@ def get_training_data():
 # TODO: Handle non float values
 @app.route('/train')
 def make_test():
-    if int(request.args.get('status')) not in [0, 1, 2]:
+    name = int(request.args.get('name'))
+    env = int(request.args.get('environment'))
+    typ = int(request.args.get('type'))
+    code = int(request.args.get('code'))
+    status = test_application.run(name, env, typ, code)
+
+    if int(status) not in [0, 1, 2]:
         return abort(400)
 
     train_data = {
-        "Status": int(request.args.get('status')),
-        "Name": int(request.args.get('name')),
-        "Environment": int(request.args.get('environment')),
-        "Type": int(request.args.get('type')),
-        "Code": int(request.args.get('code'))
+        "Status": status,
+        "Name": name,
+        "Environment": env,
+        "Type": typ,
+        "Code": code
     }
     doc = mongo.db.api.insert_one(train_data)
     response = {
@@ -77,20 +86,20 @@ def run_rest_test():
     }
     name = request.args.get('name')
     print("Received API: " + name)
-    actual_status = [request.args.get('status')]
-    prediction, probability, expectation = run_test(test_value, actual_status, get_training_data())
+    prediction, probability = run_test(test_value, get_training_data())
 
     return jsonify({
         "prediction": prediction,
-        "probability": probability,
-        "expectation": expectation
+        "probability": probability
     })
 
 
 @app.route('/test/delete')
 def delete_all_tests():
-    doc = mongo.db.api.delete_many({})
-    return "deleted all."
+    mongo.db.api.delete_many({})
+    status_message = "deleted all."
+    print(status_message)
+    return status_message
 
 
 if __name__ == '__main__':

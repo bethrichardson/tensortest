@@ -5,7 +5,6 @@ from bson.objectid import ObjectId
 import simplejson as json
 from werkzeug import Response
 import pandas as pd
-import numpy as np
 from flask_cors import CORS
 
 app = Flask(__name__)

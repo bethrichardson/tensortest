@@ -19,7 +19,7 @@ mongo = PyMongo(app, config_prefix='MONGO2')
 NUM_TRAINING_RUNS = 350
 MIN_TEST_INPUT_RANGE = 0
 MAX_TEST_INPUT_RANGE = 5
-MIN_ACCEPTABLE_ACCURACY = 95
+MIN_ACCEPTABLE_ACCURACY = 100
 NUM_TRAINING_RUN_INCREMENT = 50
 
 
@@ -94,8 +94,31 @@ def run_training_set(size):
         }
         mongo.db.api.insert_one(train_data)
 
+
+@app.route('/test/validate')
+def get_actual_value():
+    name = int(request.args.get('name'))
+    env = int(request.args.get('environment'))
+    typ = int(request.args.get('type'))
+    code = int(request.args.get('code'))
+
+    status = test_application.run(name, env, typ, code)
+
+    return jsonify({
+        "status": status
+    })
+
+
 @app.route('/train/random')
 def train_exhaustively():
+    """
+    Runs the application under test with random test inputs within the specified test input range
+    until the desired test accuracy is reached based on existing known test values.
+
+    Runs tensorflow against one random test to determine how close to test accuracy we are.
+    :return: A response object that includes the number of test runs that had to run to get to
+    desired test accuracy as well as the trained test accuracy
+    """
     run_training_set(NUM_TRAINING_RUNS)
     name = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
     env = random.randint(MIN_TEST_INPUT_RANGE, MAX_TEST_INPUT_RANGE)
@@ -117,6 +140,7 @@ def train_exhaustively():
         run_training_set(NUM_TRAINING_RUN_INCREMENT)
         prediction, probability, accuracy = run_test(test_value, get_training_data())
         num_tests += 1
+        print("New accuracy is:" + str(accuracy))
 
     response = {
         "acknowledged": True,
